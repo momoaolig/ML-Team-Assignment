@@ -33,7 +33,7 @@ def build_df(dir:str)->pd.DataFrame:
         # convert to dataframe
         speaker_df = pd.read_csv(os.path.join(dir, filename), 
                                 names=features)
-        speaker_df.insert(len(speaker_df.columns), "speaker_id", [float(speaker)]*len(speaker_df), True)
+        speaker_df.insert(len(speaker_df.columns), "Participant_ID", [float(speaker)]*len(speaker_df), True)
         # append depression and gender labels to data
         depression = int(labels.loc[labels['Participant_ID']== float(speaker)]["Depression"].values[0])
         speaker_df.insert(len(speaker_df.columns), "depression", [depression]*len(speaker_df), True)
@@ -71,22 +71,22 @@ def analyze_results(start_df:pd.DataFrame, predicted_outcomes:np.array):
         participant_arr.append([id, sub_df['gender'].values[0], sub_df['depression'].values[0], avg_prediction])
     test_df = pd.DataFrame(participant_arr, columns=['Participant_ID', 'gender', 'depression', 'prediction'])
     # compute accuracy and BCA over all participants
-    class_acc = test_df[test_df['depression'] == test_df['prediction']].sum()/len(test_df)
-    bca = (test_df[(test_df['depression'] == 0) & (test_df['prediction'] == 0)].sum()/len(test_df[test_df['depression'] == 0]) + 
-            test_df[(test_df['depression'] == 1) & (test_df['prediction'] == 1)].sum()/len(test_df[test_df['depression'] == 1]))
+    class_acc = len(test_df[test_df['depression'] == test_df['prediction']])/len(test_df)
+    bca = (len(test_df[(test_df['depression'] == 0) & (test_df['prediction'] == 0)])/len(test_df[test_df['depression'] == 0]) + 
+            len(test_df[(test_df['depression'] == 1) & (test_df['prediction'] == 1)])/len(test_df[test_df['depression'] == 1]))/2
     # compute accuracy and BCA for male participants
     male_df = test_df[test_df['gender'] == 1]
-    male_class_acc = male_df[male_df['depression'] == male_df['prediction']].sum()/len(male_df)
-    male_bca = (male_df[(male_df['depression'] == 0) & (male_df['prediction'] == 0)].sum()/len(male_df[male_df['depression'] == 0]) + 
-            male_df[(male_df['depression'] == 1) & (male_df['prediction'] == 1)].sum()/len(male_df[male_df['depression'] == 1]))
+    male_class_acc = len(male_df[male_df['depression'] == male_df['prediction']])/len(male_df)
+    male_bca = len((male_df[(male_df['depression'] == 0) & (male_df['prediction'] == 0)])/len(male_df[male_df['depression'] == 0]) + 
+            len(male_df[(male_df['depression'] == 1) & (male_df['prediction'] == 1)])/len(male_df[male_df['depression'] == 1]))/2
     # compute accuracy and BCA for female participants
     female_df = test_df[test_df['gender'] == 0]
-    female_class_acc = female_df[female_df['depression'] == female_df['prediction']].sum()/len(female_df)
-    female_bca = (female_df[(female_df['depression'] == 0) & (female_df['prediction'] == 0)].sum()/len(female_df[female_df['depression'] == 0]) + 
-            female_df[(female_df['depression'] == 1) & (female_df['prediction'] == 1)].sum()/len(female_df[female_df['depression'] == 1]))
+    female_class_acc = len(female_df[female_df['depression'] == female_df['prediction']])/len(female_df)
+    female_bca = (len(female_df[(female_df['depression'] == 0) & (female_df['prediction'] == 0)])/len(female_df[female_df['depression'] == 0]) + 
+            len(female_df[(female_df['depression'] == 1) & (female_df['prediction'] == 1)])/len(female_df[female_df['depression'] == 1]))/2
     # compute equality of opportunity
-    male_tpr = male_df[(male_df['depression'] == 1) & (male_df['prediction'] == 1)].sum()/len(male_df[male_df['depression'] == 1])
-    female_tpr = female_df[(female_df['depression'] == 1) & (female_df['prediction'] == 1)].sum()/len(female_df[female_df['depression'] == 1])
+    male_tpr = len(male_df[(male_df['depression'] == 1) & (male_df['prediction'] == 1)])/len(male_df[male_df['depression'] == 1])
+    female_tpr = len(female_df[(female_df['depression'] == 1) & (female_df['prediction'] == 1)])/len(female_df[female_df['depression'] == 1])
     eo = 1 - abs(male_tpr - female_tpr)
 
     return class_acc, bca, male_class_acc, male_bca, female_class_acc, female_bca, eo
@@ -137,5 +137,7 @@ def depression_feature_selection(df:pd.DataFrame, test_df:pd.DataFrame):
     # plt.show()
 
     return top_twenty_feats
+
+
 
 
